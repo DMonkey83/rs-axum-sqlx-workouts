@@ -1,7 +1,10 @@
 use axum::extract::Query;
 use sqlx::{Pool, Postgres};
 
-use crate::models::workout_plan::{NewWorkoutPlan, UpdateWorkoutPlan, WorkoutPlan, ListWorkoutPlanResponse};
+use crate::models::workout_plan::{
+    workout_plan_response, ListWorkoutPlanResponse, NewWorkoutPlan, UpdateWorkoutPlan, WorkoutPlan,
+    WorkoutPlanResponse,
+};
 
 use super::plan_workout_repo::list_plan_workouts_sql;
 
@@ -58,9 +61,11 @@ pub async fn get_workout_plan_sql(
     )
     .fetch_one(&data)
     .await?;
-    let plan_workouts = list_plan_workouts_sql(data.clone(), entry.id).await.unwrap();
+    let plan_workouts = list_plan_workouts_sql(data.clone(), entry.id)
+        .await
+        .unwrap();
 
-    Ok(entry)
+    Ok(workout_plan_response(entry, plan_workouts))
 }
 
 pub async fn update_workout_plan_sql(

@@ -1,12 +1,13 @@
-
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 
-use super::{enums::{WorkoutGoalEnum, DifficultyEnum, VisibilityEnum}, plan_workout::PlanWorkout};
+use super::{
+    enums::{DifficultyEnum, VisibilityEnum, WorkoutGoalEnum},
+    plan_workout::PlanWorkoutResponse,
+};
 
-
-#[derive(Debug, FromRow, Serialize,  Deserialize)]
+#[derive(Debug, FromRow, Serialize, Deserialize)]
 pub struct WorkoutPlan {
     pub id: uuid::Uuid,
     pub username: String,
@@ -21,7 +22,7 @@ pub struct WorkoutPlan {
 }
 
 #[derive(Debug, FromRow, Serialize, Deserialize)]
-pub struct NewWorkoutPlan { 
+pub struct NewWorkoutPlan {
     pub username: String,
     pub plan_name: String,
     pub description: String,
@@ -33,7 +34,7 @@ pub struct NewWorkoutPlan {
 }
 
 #[derive(Debug, FromRow, Serialize, Deserialize)]
-pub struct UpdateWorkoutPlan { 
+pub struct UpdateWorkoutPlan {
     pub id: uuid::Uuid,
     pub plan_name: Option<String>,
     pub description: Option<String>,
@@ -44,7 +45,7 @@ pub struct UpdateWorkoutPlan {
     pub is_public: Option<VisibilityEnum>,
 }
 
-#[derive(Debug, FromRow, Serialize,  Deserialize)]
+#[derive(Debug, FromRow, Serialize, Deserialize)]
 pub struct WorkoutPlanResponse {
     pub id: uuid::Uuid,
     pub username: String,
@@ -55,11 +56,11 @@ pub struct WorkoutPlanResponse {
     pub goal: WorkoutGoalEnum,
     pub difficulty: DifficultyEnum,
     pub is_public: VisibilityEnum,
-    pub plan_workouts: Vec<PlanWorkout>,
+    pub plan_workouts: Vec<PlanWorkoutResponse>,
     pub created_at: Option<DateTime<Utc>>,
 }
 
-#[derive(Debug, FromRow, Serialize,  Deserialize)]
+#[derive(Debug, FromRow, Serialize, Deserialize)]
 pub struct ListWorkoutPlanResponse {
     pub id: uuid::Uuid,
     pub plan_name: String,
@@ -75,19 +76,19 @@ pub struct ListWorkoutPlanResponse {
 pub fn workout_plan_response(
     plan: WorkoutPlan,
     workouts: Vec<PlanWorkoutResponse>,
-) -> UserProfileResponse {
-    let response = UserProfileResponse {
-        username: profile.username.to_string(),
-        first_name: profile.first_name.to_string(),
-        last_name: profile.last_name.to_string(),
-        email: profile.email.to_string(),
-        age: profile.age,
-        gender: profile.gender,
-        height: profile.height,
-        preferred_weight_unit: profile.preferred_weight_unit,
-        preferred_height_unit: profile.preferred_height_unit,
-        weight_entries,
-        created_at: profile.created_at,
+) -> WorkoutPlanResponse {
+    let response = WorkoutPlanResponse {
+        id: plan.id,
+        username: plan.username,
+        plan_name: plan.plan_name,
+        description: plan.description,
+        start_date: plan.start_date,
+        end_date: plan.end_date,
+        goal: plan.goal,
+        difficulty: plan.difficulty,
+        is_public: plan.is_public,
+        plan_workouts: workouts,
+        created_at: plan.created_at,
     };
     response
 }

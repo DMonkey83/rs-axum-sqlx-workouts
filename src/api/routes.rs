@@ -15,11 +15,17 @@ use super::{
     exercise_container::{
         create_exercise, delete_exercise, get_exercise, list_exercises, update_exercise,
     },
-    max_rep_goal_controller::{delete_max_rep_goal, update_max_rep_goal, create_max_rep_goal},
+    max_rep_goal_controller::{create_max_rep_goal, delete_max_rep_goal, update_max_rep_goal},
+    max_weight_goal_controller::{
+        create_max_weight_goal, delete_max_weight_goal, update_max_weight_goal,
+    },
     user_profile_controller::{
         create_user_profile, delete_user_profile, get_user_profile, update_user_profile,
     },
-    weight_entry_controller::{create_weight_entry, delete_weight_entry, update_weight_entry}, max_weight_goal_controller::{update_max_weight_goal, create_max_weight_goal, delete_max_weight_goal},
+    weight_entry_controller::{create_weight_entry, delete_weight_entry, update_weight_entry},
+    workout_controller::{
+        create_workout, delete_workout, get_workout, list_workouts, update_workout,
+    },
 };
 
 pub fn create_router(app_state: Arc<AppState>) -> Router {
@@ -83,6 +89,23 @@ pub fn create_router(app_state: Arc<AppState>) -> Router {
         .route(
             "/api/weight_entries/:id",
             delete(delete_weight_entry)
+                .route_layer(middleware::from_fn_with_state(app_state.clone(), auth)),
+        )
+        .route(
+            "/api/workouts",
+            post(create_workout)
+                .patch(update_workout)
+                .get(list_workouts)
+                .route_layer(middleware::from_fn_with_state(app_state.clone(), auth)),
+        )
+        .route(
+            "/api/workouts/:id",
+            delete(delete_workout)
+                .route_layer(middleware::from_fn_with_state(app_state.clone(), auth)),
+        )
+        .route(
+            "/api/workouts/:name",
+            delete(get_workout)
                 .route_layer(middleware::from_fn_with_state(app_state.clone(), auth)),
         )
         .route("/api/auth/register", post(register_user_handler))
