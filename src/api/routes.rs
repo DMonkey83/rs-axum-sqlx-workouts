@@ -30,7 +30,14 @@ use super::{
     workout_controller::{
         create_workout, delete_workout, get_workout, list_workouts, update_workout,
     },
-    workout_plan_controller::{create_workout_plan, delete_workout_plan, update_workout_plan, list_workout_plans, get_workout_plan},
+    workout_exercise_controller::{
+        create_workout_exercise, delete_workout_exercise, get_workout_exercise,
+        list_workout_exercises, update_workout_exercise,
+    },
+    workout_plan_controller::{
+        create_workout_plan, delete_workout_plan, get_workout_plan, list_workout_plans,
+        update_workout_plan,
+    },
 };
 
 pub fn create_router(app_state: Arc<AppState>) -> Router {
@@ -110,10 +117,20 @@ pub fn create_router(app_state: Arc<AppState>) -> Router {
                 .route_layer(middleware::from_fn_with_state(app_state.clone(), auth)),
         )
         .route(
-            "/api/workouts",
-            post(create_workout)
-                .patch(update_workout)
-                .get(list_workouts)
+            "/api/workout_exercises",
+            post(create_workout_exercise)
+                .patch(update_workout_exercise)
+                .get(list_workout_exercises)
+                .route_layer(middleware::from_fn_with_state(app_state.clone(), auth)),
+        )
+        .route(
+            "/api/workout_exercises/:id",
+            post(delete_workout_exercise)
+                .route_layer(middleware::from_fn_with_state(app_state.clone(), auth)),
+        )
+        .route(
+            "/api/workout_exercises/:id/:username",
+            post(get_workout_exercise)
                 .route_layer(middleware::from_fn_with_state(app_state.clone(), auth)),
         )
         .route(
@@ -127,6 +144,13 @@ pub fn create_router(app_state: Arc<AppState>) -> Router {
             "/api/workout_plans/:id",
             delete(delete_workout_plan)
                 .get(get_workout_plan)
+                .route_layer(middleware::from_fn_with_state(app_state.clone(), auth)),
+        )
+        .route(
+            "/api/workouts",
+            post(create_workout)
+                .patch(update_workout)
+                .get(list_workouts)
                 .route_layer(middleware::from_fn_with_state(app_state.clone(), auth)),
         )
         .route(

@@ -93,7 +93,7 @@ pub async fn delete_workout_exercise_sql(data: Pool<Postgres>, id: uuid::Uuid) -
     rows_affected
 }
 
-pub async fn list_workouts_exercises_sql(data: Pool<Postgres>, workout_id: uuid::Uuid) -> Result<Vec<WorkoutExercise>, sqlx::Error> {
+pub async fn list_workout_exercises_sql(data: Pool<Postgres>, workout_id: uuid::Uuid) -> Result<Vec<WorkoutExercise>, sqlx::Error> {
     let result = sqlx::query_as!(
         WorkoutExercise,
         r#"
