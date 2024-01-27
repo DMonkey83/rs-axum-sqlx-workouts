@@ -26,4 +26,4 @@ pub struct UpdateMaxWeightGoal {
     pub exercise_name: String,
     pub goal_weight: Option<i32>,
     pub notes: Option<String>,
-}
+} 

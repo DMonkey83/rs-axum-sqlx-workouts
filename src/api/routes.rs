@@ -15,10 +15,11 @@ use super::{
     exercise_container::{
         create_exercise, delete_exercise, get_exercise, list_exercises, update_exercise,
     },
+    max_rep_goal_controller::{delete_max_rep_goal, update_max_rep_goal, create_max_rep_goal},
     user_profile_controller::{
         create_user_profile, delete_user_profile, get_user_profile, update_user_profile,
     },
-    weight_entry_controller::{create_weight_entry, delete_weight_entry, update_weight_entry},
+    weight_entry_controller::{create_weight_entry, delete_weight_entry, update_weight_entry}, max_weight_goal_controller::{update_max_weight_goal, create_max_weight_goal, delete_max_weight_goal},
 };
 
 pub fn create_router(app_state: Arc<AppState>) -> Router {
@@ -33,7 +34,32 @@ pub fn create_router(app_state: Arc<AppState>) -> Router {
         .route(
             "/api/exercises/:name",
             delete(delete_exercise)
-                .get(get_exercise)
+                .route_layer(middleware::from_fn_with_state(app_state.clone(), auth)),
+        )
+        .route(
+            "/api/exercises/:name/:username",
+            get(get_exercise).route_layer(middleware::from_fn_with_state(app_state.clone(), auth)),
+        )
+        .route(
+            "/api/max_rep_goal",
+            patch(update_max_rep_goal)
+                .post(create_max_rep_goal)
+                .route_layer(middleware::from_fn_with_state(app_state.clone(), auth)),
+        )
+        .route(
+            "/api/max_rep_goal/:id",
+            delete(delete_max_rep_goal)
+                .route_layer(middleware::from_fn_with_state(app_state.clone(), auth)),
+        )
+        .route(
+            "/api/max_weight_goal",
+            patch(update_max_weight_goal)
+                .post(create_max_weight_goal)
+                .route_layer(middleware::from_fn_with_state(app_state.clone(), auth)),
+        )
+        .route(
+            "/api/max_weight_goal/:id",
+            delete(delete_max_weight_goal)
                 .route_layer(middleware::from_fn_with_state(app_state.clone(), auth)),
         )
         .route(

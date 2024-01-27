@@ -49,9 +49,22 @@ pub enum CompletionEnum {
 #[derive(sqlx::Type, Serialize, Deserialize,Debug, Clone, Copy)]
 #[sqlx(type_name="musclegroupenum", rename_all="snake_case" )]
 pub enum MuscleGroupEnum {
-    Completed,
-    Incomplete,
-    Notstarted
+  Chest,
+  LowerBback,
+  UpperBback,
+  Lats,
+  Traps,
+  Quads,
+  Hamstrings,
+  Calves,
+  Shoulders,
+  Forearms,
+  Biceps,
+  Triceps,
+  Abs,
+  Obliques,
+  Cardio,
+  Compound
 }
 
 #[derive(sqlx::Type, Serialize, Deserialize,Debug, Clone, Copy)]

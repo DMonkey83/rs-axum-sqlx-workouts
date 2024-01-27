@@ -43,9 +43,9 @@ pub async fn create_exercise(
 
 pub async fn get_exercise(
     State(data): State<Arc<AppState>>,
-    Path(name): Path<String>,
-    Path(username): Path<String>,
+    Path((name, username)): Path<(String, String)>,
 ) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)> {
+    println!("name: {:?}/{:?}", name, username);
     let query_result = get_exercise_sql(data.db.clone(), name, username).await;
     let exercise: ExerciseResponse;
     match query_result {

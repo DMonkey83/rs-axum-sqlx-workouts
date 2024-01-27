@@ -45,12 +45,12 @@ pub async fn get_exercise_sql(
                 maxrepgoal.notes AS "max_rep_goal_notes: _",
                 exercise.created_at AS "created_at: _"
             FROM exercise
-            JOIN maxweightgoal ON exercise.exercise_name = maxweightgoal.exercise_name AND $2 = maxweightgoal.username
-            JOIN maxrepgoal ON exercise.exercise_name = maxrepgoal.exercise_name AND $2 = maxrepgoal.username
-            WHERE exercise.exercise_name = $1
+            LEFT JOIN maxrepgoal ON exercise.exercise_name = maxrepgoal.exercise_name AND $1 = maxrepgoal.username
+            LEFT JOIN maxweightgoal ON exercise.exercise_name = maxweightgoal.exercise_name AND $1 = maxweightgoal.username
+            WHERE exercise.exercise_name = $2
         "#,
-        name.to_string(),
         username.to_string(),
+        name.to_string(),
     )
     .fetch_one(&data)
     .await?;

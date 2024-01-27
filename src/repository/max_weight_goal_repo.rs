@@ -24,25 +24,6 @@ pub async fn create_max_weight_goal_sql(
     Ok(entry)
 }
 
-pub async fn get_max_weight_goal_sql(
-    data: Pool<Postgres>,
-    id: uuid::Uuid,
-) -> Result<MaxWeightGoal, sqlx::Error> {
-    let entry = sqlx::query_as!(
-        MaxWeightGoal,
-        r#"
-            SELECT id, username, exercise_name, goal_weight, notes, created_at
-            FROM maxweightgoal
-            WHERE id = $1
-        "#,
-        id,
-    )
-    .fetch_one(&data)
-    .await?;
-
-    Ok(entry)
-}
-
 pub async fn update_max_weight_goal_sql(
     data: Pool<Postgres>,
     update: UpdateMaxWeightGoal,
@@ -68,7 +49,7 @@ pub async fn update_max_weight_goal_sql(
     Ok(result)
 }
 
-pub async fn delete_rep_sql(data: Pool<Postgres>, id: uuid::Uuid) -> u64 {
+pub async fn delete_max_weight_goal_sql(data: Pool<Postgres>, id: uuid::Uuid) -> u64 {
     let rows_affected = sqlx::query!("DELETE FROM maxweightgoal WHERE id = $1", id)
         .execute(&data)
         .await

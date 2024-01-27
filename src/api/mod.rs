@@ -8,6 +8,8 @@ pub mod routes;
 pub mod user_profile_controller;
 pub mod weight_entry_controller;
 pub mod exercise_container;
+pub mod max_rep_goal_controller;
+pub mod max_weight_goal_controller;
 
 pub fn hash_password(password: String) -> Result<String, String> {
     let salt = SaltString::generate(&mut OsRng);

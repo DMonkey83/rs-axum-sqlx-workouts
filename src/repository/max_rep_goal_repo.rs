@@ -24,24 +24,6 @@ pub async fn create_max_rep_goal_sql(
     Ok(entry)
 }
 
-pub async fn get_max_rep_goal_sql(
-    data: Pool<Postgres>,
-    id: uuid::Uuid,
-) -> Result<MaxRepGoal, sqlx::Error> {
-    let entry = sqlx::query_as!(
-        MaxRepGoal,
-        r#"
-            SELECT id, username, exercise_name, goal_reps, notes, created_at
-            FROM maxrepgoal
-            WHERE id = $1
-        "#,
-        id,
-    )
-    .fetch_one(&data)
-    .await?;
-
-    Ok(entry)
-}
 
 pub async fn update_max_rep_goal_sql(
     data: Pool<Postgres>,
