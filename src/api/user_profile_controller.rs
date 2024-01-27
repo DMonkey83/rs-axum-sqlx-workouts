@@ -12,7 +12,7 @@ use crate::{
     helpers::response::{error_response, success_response},
     models::user_profile::{NewUserProfile, UpdateUserProfile, UserProfileResponse},
     repository::user_profile_repo::{
-        create_profile_sql, delete_profile_sql, get_profile_response, update_profile_sql,
+        create_profile_sql, delete_profile_sql, get_user_profile_sql, update_profile_sql,
     },
     AppState,
 };
@@ -52,7 +52,7 @@ pub async fn get_user_profile(
     State(data): State<Arc<AppState>>,
     Path(username): Path<String>,
 ) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)> {
-    let query_result = get_profile_response(data.db.clone(), username).await;
+    let query_result = get_user_profile_sql(data.db.clone(), username).await;
     let user_profile: UserProfileResponse;
     match query_result {
         Ok(user) => {

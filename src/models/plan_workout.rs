@@ -28,3 +28,15 @@ pub struct UpdatePlanWorkout {
     pub workout_day: Option<WorkoutDayEnum>,
     pub notes: Option<String>,
 }
+
+#[derive(Debug, FromRow, Serialize, Deserialize)]
+pub struct PlanWorkoutResponse {
+    pub id: uuid::Uuid,
+    pub plan_id: uuid::Uuid,
+    pub workout_id: uuid::Uuid,
+    pub workout_day: WorkoutDayEnum,
+    pub notes: String,
+    pub workout_name: String,
+    pub workout_notes: String,
+    pub created_at: Option<DateTime<Utc>>,
+}

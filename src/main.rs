@@ -10,11 +10,11 @@ use std::sync::Arc;
 use tower_http::cors::CorsLayer;
 
 mod api;
+mod auth;
 mod config;
 mod helpers;
 mod models;
 mod repository;
-mod auth;
 
 use crate::api::routes::create_router;
 
@@ -54,15 +54,15 @@ async fn main() {
             std::process::exit(1);
         }
     };
+    let port = std::env::var("PORT").expect("PORT must be set");
+    let host = std::env::var("HOST").expect("HOST must be set");
+    let address = format!("{}:{}", host, port);
 
     let cors = CorsLayer::new()
         .allow_origin("http://localhost:3000".parse::<HeaderValue>().unwrap())
         .allow_methods([Method::GET, Method::POST, Method::PATCH, Method::DELETE])
         .allow_credentials(true)
         .allow_headers([AUTHORIZATION, ACCEPT, CONTENT_TYPE]);
-    let port = std::env::var("PORT").expect("PORT must be set");
-    let host = std::env::var("HOST").expect("HOST must be set");
-    let address = format!("{}:{}", host, port);
     let app = create_router(Arc::new(AppState {
         db: pool.clone(),
         env: config.clone(),
@@ -70,8 +70,9 @@ async fn main() {
     }))
     .layer(cors);
 
-    println!("Server running on port {}", port.clone());
     println!("Address http://{}", address.clone());
     let listener = tokio::net::TcpListener::bind(address).await.unwrap();
-    axum::serve(listener, app).await.unwrap();
+    axum::serve(listener, app.into_make_service())
+        .await
+        .unwrap();
 }

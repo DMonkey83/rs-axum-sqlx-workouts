@@ -82,7 +82,7 @@ pub async fn delete_profile_sql(
     rows_affected
 }
 
-pub async fn get_profile_response(
+pub async fn get_user_profile_sql(
     data: Pool<Postgres>,
     username: String,
 ) -> Result<UserProfileResponse, sqlx::Error> {
