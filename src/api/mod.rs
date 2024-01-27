@@ -11,6 +11,8 @@ pub mod routes;
 pub mod user_profile_controller;
 pub mod weight_entry_controller;
 pub mod workout_controller;
+pub mod workout_exercise_controller;
+pub mod workout_plan_controller;
 
 pub fn hash_password(password: String) -> Result<String, String> {
     let salt = SaltString::generate(&mut OsRng);

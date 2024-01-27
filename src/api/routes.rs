@@ -19,7 +19,10 @@ use super::{
     max_weight_goal_controller::{
         create_max_weight_goal, delete_max_weight_goal, update_max_weight_goal,
     },
-    plan_workout_controller::{delete_plan_workout, get_plan_workout, list_plan_workouts, create_plan_workout, update_plan_workout},
+    plan_workout_controller::{
+        create_plan_workout, delete_plan_workout, get_plan_workout, list_plan_workouts,
+        update_plan_workout,
+    },
     user_profile_controller::{
         create_user_profile, delete_user_profile, get_user_profile, update_user_profile,
     },
@@ -27,6 +30,7 @@ use super::{
     workout_controller::{
         create_workout, delete_workout, get_workout, list_workouts, update_workout,
     },
+    workout_plan_controller::{create_workout_plan, delete_workout_plan, update_workout_plan, list_workout_plans, get_workout_plan},
 };
 
 pub fn create_router(app_state: Arc<AppState>) -> Router {
@@ -73,17 +77,13 @@ pub fn create_router(app_state: Arc<AppState>) -> Router {
             "/api/plan_workouts",
             post(create_plan_workout)
                 .patch(update_plan_workout)
+                .get(list_plan_workouts)
                 .route_layer(middleware::from_fn_with_state(app_state.clone(), auth)),
         )
         .route(
             "/api/plan_workouts/:id",
             delete(delete_plan_workout)
                 .get(get_plan_workout)
-                .route_layer(middleware::from_fn_with_state(app_state.clone(), auth)),
-        )
-        .route(
-            "/api/plan_workouts/:plan_id",
-                get(list_plan_workouts)
                 .route_layer(middleware::from_fn_with_state(app_state.clone(), auth)),
         )
         .route(
@@ -114,6 +114,19 @@ pub fn create_router(app_state: Arc<AppState>) -> Router {
             post(create_workout)
                 .patch(update_workout)
                 .get(list_workouts)
+                .route_layer(middleware::from_fn_with_state(app_state.clone(), auth)),
+        )
+        .route(
+            "/api/workout_plans",
+            post(create_workout_plan)
+                .patch(update_workout_plan)
+                .get(list_workout_plans)
+                .route_layer(middleware::from_fn_with_state(app_state.clone(), auth)),
+        )
+        .route(
+            "/api/workout_plans/:id",
+            delete(delete_workout_plan)
+                .get(get_workout_plan)
                 .route_layer(middleware::from_fn_with_state(app_state.clone(), auth)),
         )
         .route(

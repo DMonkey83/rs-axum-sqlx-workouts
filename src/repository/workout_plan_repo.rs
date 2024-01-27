@@ -1,4 +1,3 @@
-use axum::extract::Query;
 use sqlx::{Pool, Postgres};
 
 use crate::models::workout_plan::{
@@ -115,7 +114,7 @@ pub async fn delete_workout_plan_sql(data: Pool<Postgres>, id: uuid::Uuid) -> u6
 
 pub async fn list_workout_plans_sql(
     data: Pool<Postgres>,
-    username: Query<String>,
+    username: String,
 ) -> Result<Vec<ListWorkoutPlanResponse>, sqlx::Error> {
     let result = sqlx::query_as!(
         ListWorkoutPlanResponse,
