@@ -19,6 +19,7 @@ use super::{
     max_weight_goal_controller::{
         create_max_weight_goal, delete_max_weight_goal, update_max_weight_goal,
     },
+    plan_workout_controller::{delete_plan_workout, get_plan_workout, list_plan_workouts, create_plan_workout, update_plan_workout},
     user_profile_controller::{
         create_user_profile, delete_user_profile, get_user_profile, update_user_profile,
     },
@@ -66,6 +67,23 @@ pub fn create_router(app_state: Arc<AppState>) -> Router {
         .route(
             "/api/max_weight_goal/:id",
             delete(delete_max_weight_goal)
+                .route_layer(middleware::from_fn_with_state(app_state.clone(), auth)),
+        )
+        .route(
+            "/api/plan_workouts",
+            post(create_plan_workout)
+                .patch(update_plan_workout)
+                .route_layer(middleware::from_fn_with_state(app_state.clone(), auth)),
+        )
+        .route(
+            "/api/plan_workouts/:id",
+            delete(delete_plan_workout)
+                .get(get_plan_workout)
+                .route_layer(middleware::from_fn_with_state(app_state.clone(), auth)),
+        )
+        .route(
+            "/api/plan_workouts/:plan_id",
+                get(list_plan_workouts)
                 .route_layer(middleware::from_fn_with_state(app_state.clone(), auth)),
         )
         .route(

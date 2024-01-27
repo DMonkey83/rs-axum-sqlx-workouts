@@ -1,15 +1,15 @@
-
 use argon2::{password_hash::SaltString, Argon2, PasswordHasher};
-use axum::{http::StatusCode,  Json};
+use axum::{http::StatusCode, Json};
 use rand_core::OsRng;
 
 pub mod authorization_controller;
-pub mod routes;
-pub mod user_profile_controller;
-pub mod weight_entry_controller;
 pub mod exercise_container;
 pub mod max_rep_goal_controller;
 pub mod max_weight_goal_controller;
+pub mod plan_workout_controller;
+pub mod routes;
+pub mod user_profile_controller;
+pub mod weight_entry_controller;
 pub mod workout_controller;
 
 pub fn hash_password(password: String) -> Result<String, String> {
