@@ -1,6 +1,6 @@
 use sqlx::{Pool, Postgres};
 
-use crate::models::exercise::{Exercise, NewExercise, UpdateExercise};
+use crate::models::exercise::{Exercise, NewExercise, UpdateExercise, ExerciseResponse};
 
 pub async fn create_exercise_sql(
     data: Pool<Postgres>,
@@ -28,15 +28,29 @@ pub async fn create_exercise_sql(
 pub async fn get_exercise_sql(
     data: Pool<Postgres>,
     name: String,
-) -> Result<Exercise, sqlx::Error> {
+    username: String,
+) -> Result<ExerciseResponse, sqlx::Error> {
     let entry = sqlx::query_as!(
-        Exercise,
+        ExerciseResponse,
         r#"
-            SELECT exercise_name, equipment_required AS "equipment_required: _", description, instructions, muscle_group_name AS "muscle_group_name: _", created_at
+            SELECT 
+                exercise.exercise_name AS "exercise_name: _",
+                exercise.equipment_required AS "equipment_required: _", 
+                exercise.description AS "description: _",
+                exercise.instructions AS "instructions: _",
+                exercise.muscle_group_name AS "muscle_group_name: _",
+                maxweightgoal.goal_weight AS "max_weight_goal: _",
+                maxrepgoal.goal_reps AS "max_rep_goal: _",
+                maxweightgoal.notes AS "max_weight_goal_notes: _",
+                maxrepgoal.notes AS "max_rep_goal_notes: _",
+                exercise.created_at AS "created_at: _"
             FROM exercise
-            WHERE exercise_name = $1
+            JOIN maxweightgoal ON exercise.exercise_name = maxweightgoal.exercise_name AND $2 = maxweightgoal.username
+            JOIN maxrepgoal ON exercise.exercise_name = maxrepgoal.exercise_name AND $2 = maxrepgoal.username
+            WHERE exercise.exercise_name = $1
         "#,
         name.to_string(),
+        username.to_string(),
     )
     .fetch_one(&data)
     .await?;
@@ -86,7 +100,8 @@ pub async fn delete_exercise_sql(data: Pool<Postgres>, name: String) -> u64 {
 pub async fn list_exercises_sql(data: Pool<Postgres>) -> Result<Vec<Exercise>, sqlx::Error> {
     let result = sqlx::query_as!(
         Exercise,
-        r#"SELECT 
+        r#"
+        SELECT 
             exercise_name, 
             equipment_required AS "equipment_required: _", 
             description, 

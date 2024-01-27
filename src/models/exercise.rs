@@ -33,3 +33,17 @@ pub struct UpdateExercise {
     pub muscle_group_name: Option<MuscleGroupEnum>,
 }
 
+#[derive(Debug, FromRow, Serialize, Deserialize)]
+pub struct ExerciseResponse { 
+    pub exercise_name: String,
+    pub equipment_required: Option<EquipmentEnum>,
+    pub description: Option<String>,
+    pub instructions: Option<String>,
+    pub muscle_group_name: Option<MuscleGroupEnum>,
+    pub max_weight_goal: Option<i32>,
+    pub max_rep_goal: Option<i32>,
+    pub max_weight_goal_notes: Option<String>,
+    pub max_rep_goal_notes: Option<String>,
+    pub created_at: DateTime<Utc>,
+}
+

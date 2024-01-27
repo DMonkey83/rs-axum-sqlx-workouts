@@ -10,7 +10,7 @@ use serde_json::json;
 
 use crate::{
     helpers::response::{error_response, success_response},
-    models::exercise::{NewExercise, UpdateExercise, Exercise},
+    models::exercise::{NewExercise, UpdateExercise, Exercise, ExerciseResponse},
     repository::exercise_repo::{
         create_exercise_sql, delete_exercise_sql, get_exercise_sql, update_exercise_sql, list_exercises_sql,
     },
@@ -44,12 +44,13 @@ pub async fn create_exercise(
 pub async fn get_exercise(
     State(data): State<Arc<AppState>>,
     Path(name): Path<String>,
+    Path(username): Path<String>,
 ) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)> {
-    let query_result = get_exercise_sql(data.db.clone(), name).await;
-    let exercise: Exercise;
+    let query_result = get_exercise_sql(data.db.clone(), name, username).await;
+    let exercise: ExerciseResponse;
     match query_result {
-        Ok(user) => {
-            exercise = user;
+        Ok(ex) => {
+            exercise = ex;
         }
         Err(e) => {
             let error_response = error_response(
