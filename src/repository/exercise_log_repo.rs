@@ -1,10 +1,6 @@
 use sqlx::{Pool, Postgres};
 
-use crate::models::{
-    exercise_log::{ExerciseLog, NewExerciseLog, UpdateExerciseLog},
-};
-
-use super::plan_workout_repo::list_plan_workouts_sql;
+use crate::models::exercise_log::{ExerciseLog, NewExerciseLog, UpdateExerciseLog};
 
 pub async fn create_exercise_log_sql(
     data: Pool<Postgres>,
