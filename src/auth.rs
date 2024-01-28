@@ -1,17 +1,18 @@
 use std::sync::Arc;
 
 use axum::{
+    body::Body,
     extract::State,
     http::{header, Request, StatusCode},
     middleware::Next,
     response::IntoResponse,
-    Json, body::Body,
+    Json,
 };
 
 use axum_extra::extract::cookie::CookieJar;
 use serde::{Deserialize, Serialize};
 
-use crate::{models::user::User, models::token, AppState};
+use crate::{models::token, models::user::User, AppState};
 use redis::AsyncCommands;
 
 #[derive(Debug, Serialize)]
@@ -108,16 +109,28 @@ pub async fn auth(
         (StatusCode::UNAUTHORIZED, Json(error_response))
     })?;
 
-    let user = sqlx::query_as!(User, "SELECT * FROM users WHERE id = $1", user_id_uuid)
-        .fetch_optional(&data.db)
-        .await
-        .map_err(|e| {
-            let error_response = ErrorResponse {
-                status: "fail",
-                message: format!("Error fetching user from database: {}", e),
-            };
-            (StatusCode::INTERNAL_SERVER_ERROR, Json(error_response))
-        })?;
+    let user = sqlx::query_as!(
+        User,
+        r#"SELECT 
+            id, 
+            username, 
+            password_hash, 
+            password_changed_at,
+            verified, 
+            role_code AS "role_code!: _", 
+            created_at 
+        FROM users WHERE id = $1"#,
+        user_id_uuid
+    )
+    .fetch_optional(&data.db)
+    .await
+    .map_err(|e| {
+        let error_response = ErrorResponse {
+            status: "fail",
+            message: format!("Error fetching user from database: {}", e),
+        };
+        (StatusCode::INTERNAL_SERVER_ERROR, Json(error_response))
+    })?;
 
     let user = user.ok_or_else(|| {
         let error_response = ErrorResponse {
