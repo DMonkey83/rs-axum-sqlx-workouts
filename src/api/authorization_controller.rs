@@ -59,9 +59,13 @@ pub async fn register_user_handler(
 
     let user = sqlx::query_as!(
         User,
-        "INSERT INTO users (username,password_hash) VALUES ($1, $2) RETURNING *",
-        body.username.to_string(),
+        r#"INSERT INTO users 
+            (username,password_hash, role_code) 
+            VALUES ($1, $2, $3) 
+        RETURNING id, username, password_hash, password_changed_at,verified, role_code AS "role_code!: _", created_at"#,
+        body.username,
         hashed_password.unwrap(),
+        body.role_code as _
     )
     .fetch_one(&data.db)
     .await
@@ -104,7 +108,15 @@ pub async fn login_user_handler(
 ) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)> {
     let user = sqlx::query_as!(
         User,
-        "SELECT * FROM users WHERE username = $1",
+        r#"SELECT 
+            id, 
+            username, 
+            password_hash, 
+            password_changed_at,
+            verified, 
+            role_code AS "role_code!: _", 
+            created_at 
+        FROM users WHERE username = $1"#,
         body.username.to_ascii_lowercase()
     )
     .fetch_optional(&data.db)
@@ -265,7 +277,19 @@ pub async fn refresh_access_token_handler(
         (StatusCode::UNAUTHORIZED, Json(error_response))
     })?;
 
-    let user = sqlx::query_as!(User, "SELECT * FROM users WHERE id = $1", user_id_uuid)
+    let user = sqlx::query_as!(
+        User, 
+        r#"SELECT 
+                id, 
+            username, 
+            password_hash, 
+            password_changed_at,
+            verified, 
+            role_code AS "role_code!: _", 
+            created_at 
+
+        FROM users WHERE id = $1"#, user_id_uuid
+)
         .fetch_optional(&data.db)
         .await
         .map_err(|e| {

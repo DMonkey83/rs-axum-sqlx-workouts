@@ -11,6 +11,7 @@ pub struct User {
     pub password_hash: String,
     pub password_changed_at: Option<DateTime<Utc>>,
     pub verified: bool,
+    pub role_code: RoleCodeEnum,
     pub created_at: Option<DateTime<Utc>>,
 }
 
