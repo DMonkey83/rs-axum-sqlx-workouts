@@ -1,15 +1,29 @@
 use std::sync::Arc;
 
-use argon2::{PasswordHash, Argon2, PasswordVerifier};
-use axum::{extract::State, Json, response::Response, response::IntoResponse, http::{StatusCode, HeaderMap, header}, Extension};
-use axum_extra::extract::{cookie::{Cookie, SameSite}, CookieJar};
+use argon2::{Argon2, PasswordHash, PasswordVerifier};
+use axum::{
+    extract::State,
+    http::{header, HeaderMap, StatusCode},
+    response::IntoResponse,
+    response::Response,
+    Extension, Json,
+};
+use axum_extra::extract::{
+    cookie::{Cookie, SameSite},
+    CookieJar,
+};
 use redis::AsyncCommands;
 use serde_json::json;
 
 use crate::{
-    AppState, 
-    models::{user::{NewUser, User}, token},
-    models::credentials::Credentials, repository::session::{generate_token, save_token_data_to_redis}, auth::JWTAuthMiddleware,
+    auth::JWTAuthMiddleware,
+    models::{credentials::Credentials, user_roles::UserRole},
+    models::{
+        token,
+        user::{NewUser, User},
+    },
+    repository::session::{generate_token, save_token_data_to_redis},
+    AppState,
 };
 
 use super::hash_password;
@@ -47,7 +61,25 @@ pub async fn register_user_handler(
         User,
         "INSERT INTO users (username,password_hash) VALUES ($1, $2) RETURNING *",
         body.username.to_string(),
-        hashed_password.unwrap()
+        hashed_password.unwrap(),
+    )
+    .fetch_one(&data.db)
+    .await
+    .map_err(|e| {
+        let error_response = serde_json::json!({
+            "status": "fail",
+            "message": format!("Database error: {}", e),
+        });
+        (StatusCode::INTERNAL_SERVER_ERROR, Json(error_response))
+    })?;
+    sqlx::query_as!(
+        UserRole,
+        r#"INSERT INTO userroles 
+            (username,role_id)
+        VALUES ($1, (SELECT id FROM roles WHERE roles.code = $2))
+        RETURNING id, username, role_id, created_at"#,
+        body.username.to_string(),
+        body.role_code as _,
     )
     .fetch_one(&data.db)
     .await
@@ -126,19 +158,19 @@ pub async fn login_user_handler(
     )
     .await?;
 
-    let access_cookie = Cookie::build(
-        ("access_token",
-        access_token_details.token.clone().unwrap_or_default()),
-    )
+    let access_cookie = Cookie::build((
+        "access_token",
+        access_token_details.token.clone().unwrap_or_default(),
+    ))
     .path("/")
     .max_age(time::Duration::minutes(data.env.access_token_max_age * 60))
     .same_site(SameSite::Lax)
     .http_only(true);
 
-    let refresh_cookie = Cookie::build(
-        ("refresh_token",
-        refresh_token_details.token.unwrap_or_default()),
-    )
+    let refresh_cookie = Cookie::build((
+        "refresh_token",
+        refresh_token_details.token.unwrap_or_default(),
+    ))
     .path("/")
     .max_age(time::Duration::minutes(data.env.refresh_token_max_age * 60))
     .same_site(SameSite::Lax)
@@ -260,10 +292,10 @@ pub async fn refresh_access_token_handler(
 
     save_token_data_to_redis(&data, &access_token_details, data.env.access_token_max_age).await?;
 
-    let access_cookie = Cookie::build(
-        ("access_token",
-        access_token_details.token.clone().unwrap_or_default()),
-    )
+    let access_cookie = Cookie::build((
+        "access_token",
+        access_token_details.token.clone().unwrap_or_default(),
+    ))
     .path("/")
     .max_age(time::Duration::minutes(data.env.access_token_max_age * 60))
     .same_site(SameSite::Lax)
@@ -398,4 +430,3 @@ pub async fn get_me_handler(
 
     Ok(Json(json_response))
 }
-

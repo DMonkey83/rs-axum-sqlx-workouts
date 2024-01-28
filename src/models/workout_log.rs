@@ -20,7 +20,7 @@ pub struct WorkoutLog {
     pub total_distance: i32,
     pub total_repetitions: i32,
     pub total_sets: i32,
-    pub total_weight_lifterd: i32,
+    pub total_weight_lifted: i32,
     pub created_at: Option<DateTime<Utc>>,
 }
 
@@ -39,7 +39,7 @@ pub struct NewWorkoutLog {
     pub total_distance: i32,
     pub total_repetitions: i32,
     pub total_sets: i32,
-    pub total_weight_lifterd: i32,
+    pub total_weight_lifted: i32,
 }
 
 #[derive(Debug, FromRow, Serialize, Deserialize)]
@@ -57,6 +57,6 @@ pub struct UpdateWorkoutLog {
     pub total_distance: Option<i32>,
     pub total_repetitions: Option<i32>,
     pub total_sets: Option<i32>,
-    pub total_weight_lifterd: Option<i32>,
+    pub total_weight_lifted: Option<i32>,
 }
 

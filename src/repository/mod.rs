@@ -8,3 +8,5 @@ pub mod weight_entry_repo;
 pub mod workout_plan_repo;
 pub mod workout_repo;
 pub mod workout_exercise_repo;
+pub mod workout_log_repo;
+pub mod exercise_log_repo;

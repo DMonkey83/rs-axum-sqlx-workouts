@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use axum::{
-    extract::{Path, State, Query},
+    extract::{Path, Query, State},
     http::StatusCode,
     response::IntoResponse,
     Json,
@@ -10,7 +10,12 @@ use serde_json::json;
 
 use crate::{
     helpers::response::{error_response, success_response},
-    AppState, models::plan_workout::{NewPlanWorkout, PlanWorkoutResponse, UpdatePlanWorkout}, repository::plan_workout_repo::{create_plan_workout_sql, get_plan_workout_sql, list_plan_workouts_sql, update_plan_workout_sql, delete_plan_workout_sql},
+    models::plan_workout::{NewPlanWorkout, PlanWorkoutResponse, UpdatePlanWorkout},
+    repository::plan_workout_repo::{
+        create_plan_workout_sql, delete_plan_workout_sql, get_plan_workout_sql,
+        list_plan_workouts_sql, update_plan_workout_sql,
+    },
+    AppState,
 };
 
 pub async fn create_plan_workout(
@@ -64,7 +69,7 @@ pub async fn get_plan_workout(
 
 pub async fn list_plan_workouts(
     State(data): State<Arc<AppState>>,
-    Query(plan_id): Query<uuid::Uuid>
+    Query(plan_id): Query<uuid::Uuid>,
 ) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)> {
     let query_result = list_plan_workouts_sql(data.db.clone(), plan_id).await;
     let plan_workouts: Vec<PlanWorkoutResponse>;

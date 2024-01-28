@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use axum::{
-    extract::{Path, State},
+    extract::{Path, Query, State},
     http::StatusCode,
     response::IntoResponse,
     Json,
@@ -10,24 +10,21 @@ use serde_json::json;
 
 use crate::{
     helpers::response::{error_response, success_response},
-    models::workout::{NewWorkout, UpdateWorkout, Workout},
-    repository::workout_repo::{
-        create_workout_sql, delete_workout_sql, get_workout_sql, list_workout_sql,
-        update_workout_sql,
-    },
+    models::workout_log::{NewWorkoutLog, WorkoutLog, UpdateWorkoutLog},
+    repository::workout_log_repo::{create_workout_log_sql, get_workout_log_sql, list_workout_log_sql, update_workout_log_sql, delete_workout_log_sql},
     AppState,
 };
 
-pub async fn create_workout(
+pub async fn create_workout_log(
     State(data): State<Arc<AppState>>,
-    Json(new_entry): Json<NewWorkout>,
+    Json(new_entry): Json<NewWorkoutLog>,
 ) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)> {
-    let result = create_workout_sql(data.db.clone(), new_entry).await;
+    let result = create_workout_log_sql(data.db.clone(), new_entry).await;
 
     match result {
         Ok(entry) => {
             let entry_response =
-                success_response("Workout created successfully".to_string(), json!(entry));
+                success_response("Workout Log created successfully".to_string(), json!(entry));
             return Ok(entry_response);
         }
         Err(e) => {
@@ -40,86 +37,89 @@ pub async fn create_workout(
     }
 }
 
-pub async fn get_workout(
-    State(data): State<Arc<AppState>>,
-    Path(name): Path<String>,
-) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)> {
-    let query_result = get_workout_sql(data.db.clone(), name).await;
-    let workout: Workout;
-    match query_result {
-        Ok(ex) => {
-            workout = ex;
-        }
-        Err(e) => {
-            let error_response = error_response(
-                StatusCode::INTERNAL_SERVER_ERROR.to_string(),
-                format!("{:?}", e),
-            );
-            return Err(error_response);
-        }
-    }
-
-    Ok(success_response(
-        "Workout retrieved successfully".to_string(),
-        json!(workout),
-    ))
-}
-
-pub async fn list_workouts(
-    State(data): State<Arc<AppState>>,
-) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)> {
-    let query_result = list_workout_sql(data.db.clone()).await;
-    let workouts: Vec<Workout>;
-    match query_result {
-        Ok(user) => {
-            workouts = user;
-        }
-        Err(e) => {
-            let error_response = error_response(
-                StatusCode::INTERNAL_SERVER_ERROR.to_string(),
-                format!("{:?}", e),
-            );
-            return Err(error_response);
-        }
-    }
-
-    Ok(success_response(
-        "Workout retrieved successfully".to_string(),
-        json!(workouts),
-    ))
-}
-
-pub async fn update_workout(
-    State(data): State<Arc<AppState>>,
-    Json(update): Json<UpdateWorkout>,
-) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)> {
-    let result = update_workout_sql(data.db.clone(), update).await;
-    match result {
-        Ok(entry) => {
-            let user_response =
-                success_response("Workout updated successfully".to_string(), json!(entry));
-            return Ok(user_response);
-        }
-        Err(e) => {
-            let error_response = error_response(
-                StatusCode::INTERNAL_SERVER_ERROR.to_string(),
-                format!("{:?}", e),
-            );
-            return Err(error_response);
-        }
-    }
-}
-
-pub async fn delete_workout(
+pub async fn get_workout_log(
     State(data): State<Arc<AppState>>,
     Path(id): Path<uuid::Uuid>,
 ) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)> {
-    let rows_affected = delete_workout_sql(data.db.clone(), id.clone()).await;
+    let query_result = get_workout_log_sql(data.db.clone(), id).await;
+    let plan_workout: WorkoutLog;
+    match query_result {
+        Ok(ex) => {
+            plan_workout = ex;
+        }
+        Err(e) => {
+            let error_response = error_response(
+                StatusCode::INTERNAL_SERVER_ERROR.to_string(),
+                format!("{:?}", e),
+            );
+            return Err(error_response);
+        }
+    }
+
+    Ok(success_response(
+        "Workout Log retrieved successfully".to_string(),
+        json!(plan_workout),
+    ))
+}
+
+pub async fn list_workout_logs(
+    State(data): State<Arc<AppState>>,
+    Query((username, plan_id)): Query<(String, uuid::Uuid)>,
+) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)> {
+    let query_result = list_workout_log_sql(data.db.clone(), username, plan_id).await;
+    let workout_logs: Vec<WorkoutLog>;
+    match query_result {
+        Ok(logs) => {
+            workout_logs = logs;
+        }
+        Err(e) => {
+            let error_response = error_response(
+                StatusCode::INTERNAL_SERVER_ERROR.to_string(),
+                format!("{:?}", e),
+            );
+            return Err(error_response);
+        }
+    }
+
+    Ok(success_response(
+        "Workout logs retrieved successfully".to_string(),
+        json!(workout_logs),
+    ))
+}
+
+pub async fn update_workout_log(
+    State(data): State<Arc<AppState>>,
+    Json(update): Json<UpdateWorkoutLog>,
+) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)> {
+    let result = update_workout_log_sql(data.db.clone(), update).await;
+    match result {
+        Ok(entry) => {
+            let log_response = success_response(
+                "Workout Log updated successfully".to_string(),
+                json!(entry),
+            );
+            return Ok(log_response);
+        }
+        Err(e) => {
+            let error_response = error_response(
+                StatusCode::INTERNAL_SERVER_ERROR.to_string(),
+                format!("{:?}", e),
+            );
+            return Err(error_response);
+        }
+    }
+}
+
+pub async fn delete_workout_log(
+    State(data): State<Arc<AppState>>,
+    Path(id): Path<uuid::Uuid>,
+) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)> {
+    let rows_affected = delete_workout_log_sql(data.db.clone(), id).await;
 
     if rows_affected == 0 {
         let error_response = error_response(
             "fail".to_string(),
-            format!("Workout with id: {} not found", id).to_string(),
+            format!("Workout Log with id: {} not found", id).to_string(),
         );
         return Err(error_response);
     }

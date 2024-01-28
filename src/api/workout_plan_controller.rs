@@ -10,7 +10,14 @@ use serde_json::json;
 
 use crate::{
     helpers::response::{error_response, success_response},
-    AppState, repository::workout_plan_repo::{create_workout_plan_sql, get_workout_plan_sql, list_workout_plans_sql, update_workout_plan_sql, delete_workout_plan_sql}, models::workout_plan::{NewWorkoutPlan, WorkoutPlanResponse, ListWorkoutPlanResponse, UpdateWorkoutPlan},
+    models::workout_plan::{
+        ListWorkoutPlanResponse, NewWorkoutPlan, UpdateWorkoutPlan, WorkoutPlanResponse,
+    },
+    repository::workout_plan_repo::{
+        create_workout_plan_sql, delete_workout_plan_sql, get_workout_plan_sql,
+        list_workout_plans_sql, update_workout_plan_sql,
+    },
+    AppState,
 };
 
 pub async fn create_workout_plan(

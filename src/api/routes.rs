@@ -37,7 +37,7 @@ use super::{
     workout_plan_controller::{
         create_workout_plan, delete_workout_plan, get_workout_plan, list_workout_plans,
         update_workout_plan,
-    },
+    }, workout_log_controller::{list_workout_logs, update_workout_log, delete_workout_log, get_workout_log, create_workout_log}, exercise_log_controller::{create_exercise_log, list_exercise_logs, update_exercise_log, get_exercise_log, delete_exercise_log},
 };
 
 pub fn create_router(app_state: Arc<AppState>) -> Router {
@@ -47,6 +47,26 @@ pub fn create_router(app_state: Arc<AppState>) -> Router {
             post(create_exercise)
                 .get(list_exercises)
                 .patch(update_exercise)
+                .route_layer(middleware::from_fn_with_state(app_state.clone(), auth)),
+        )
+        .route(
+            "/api/exercise_logs",
+            post(create_exercise_log)
+                .get(list_exercise_logs)
+                .patch(update_exercise_log)
+                .route_layer(middleware::from_fn_with_state(app_state.clone(), auth)),
+        )
+        .route(
+            "/api/exercise_logs",
+            post(create_exercise_log)
+                .get(list_exercise_logs)
+                .patch(update_exercise_log)
+                .route_layer(middleware::from_fn_with_state(app_state.clone(), auth)),
+        )
+        .route(
+            "/api/exercise_logs/:id",
+            get(get_exercise_log)
+                .delete(delete_exercise_log)
                 .route_layer(middleware::from_fn_with_state(app_state.clone(), auth)),
         )
         .route(
@@ -130,7 +150,20 @@ pub fn create_router(app_state: Arc<AppState>) -> Router {
         )
         .route(
             "/api/workout_exercises/:id/:username",
-            post(get_workout_exercise)
+            get(get_workout_exercise)
+                .route_layer(middleware::from_fn_with_state(app_state.clone(), auth)),
+        )
+        .route(
+            "/api/workout_exercises",
+            post(create_workout_log)
+                .patch(update_workout_log)
+                .get(list_workout_logs)
+                .route_layer(middleware::from_fn_with_state(app_state.clone(), auth)),
+        )
+        .route(
+            "/api/workout_exercises/:id",
+            delete(delete_workout_log)
+                .get(get_workout_log)
                 .route_layer(middleware::from_fn_with_state(app_state.clone(), auth)),
         )
         .route(

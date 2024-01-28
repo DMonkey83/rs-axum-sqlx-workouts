@@ -2,6 +2,8 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 
+use super::enums::RoleCodeEnum;
+
 #[derive(Debug, FromRow, Clone, Serialize, Deserialize)]
 pub struct User {
     pub id: uuid::Uuid,
@@ -16,4 +18,5 @@ pub struct User {
 pub struct NewUser {
     pub username: String,
     pub password_hash: String,
+    pub role_code: RoleCodeEnum,
 }

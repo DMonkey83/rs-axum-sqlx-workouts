@@ -11,7 +11,10 @@ use serde_json::json;
 use crate::{
     helpers::response::{error_response, success_response},
     models::weight_entry::{NewWeightEntry, UpdateWeightEntry},
-    AppState, repository::weight_entry_repo::{create_weight_entry_sql, update_weight_entry_sql, delete_weight_entry_sql},
+    repository::weight_entry_repo::{
+        create_weight_entry_sql, delete_weight_entry_sql, update_weight_entry_sql,
+    },
+    AppState,
 };
 
 pub async fn create_weight_entry(
@@ -22,8 +25,10 @@ pub async fn create_weight_entry(
 
     match result {
         Ok(entry) => {
-            let entry_response =
-                success_response("Weight entry created successfully".to_string(), json!(entry));
+            let entry_response = success_response(
+                "Weight entry created successfully".to_string(),
+                json!(entry),
+            );
             return Ok(entry_response);
         }
         Err(e) => {
@@ -43,8 +48,10 @@ pub async fn update_weight_entry(
     let result = update_weight_entry_sql(data.db.clone(), update).await;
     match result {
         Ok(entry) => {
-            let user_response =
-                success_response("Weight Entry updated successfully".to_string(), json!(entry));
+            let user_response = success_response(
+                "Weight Entry updated successfully".to_string(),
+                json!(entry),
+            );
             return Ok(user_response);
         }
         Err(e) => {
